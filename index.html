@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الخرائط الذهنية الذكية للوكالة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      /* Dark Theme Defaults */
+      --bg-gradient-start: #0f172a;
+      --bg-gradient-end: #030712;
+      --panel-bg: rgba(17, 24, 39, 0.85);
+      --panel-border: rgba(56, 189, 248, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #0ea5e9;
+      --primary-hover: #38bdf8;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --search-bg: rgba(0,0,0,0.5);
+      --btn-bg: rgba(0,0,0,0.4);
+      --indicator-bg: rgba(15, 23, 42, 0.9);
+      --icon-bg: rgba(15, 23, 42, 0.9);
+    }
+    
+    body.light-mode {
+      /* Light Theme Variables */
+      --bg-gradient-start: #f8fafc;
+      --bg-gradient-end: #e2e8f0;
+      --panel-bg: rgba(255, 255, 255, 0.95);
+      --panel-border: rgba(14, 165, 233, 0.4);
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --card-bg: rgba(241, 245, 249, 0.9);
+      --search-bg: #fff;
+      --btn-bg: rgba(241, 245, 249, 0.9);
+      --indicator-bg: rgba(255, 255, 255, 0.95);
+      --icon-bg: #fff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      padding: 0; margin: 0; width: 100vw; height: 100vh; overflow: hidden;
+      background: radial-gradient(circle at center, var(--bg-gradient-start) 40%, var(--bg-gradient-end) 100%);
+      font-family: 'Tajawal', sans-serif; color: var(--text-main); display: flex;
+      transition: background 0.5s ease;
+    }
+    .sidebar {
+      width: 380px; height: 100%; background: var(--panel-bg); backdrop-filter: blur(25px);
+      border-left: 1px solid var(--panel-border); padding: 24px; display: flex;
+      flex-direction: column; gap: 24px; z-index: 100; box-shadow: -4px 0 35px rgba(0,0,0,0.15);
+      overflow-y: auto; transition: background 0.5s, border-color 0.5s;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; opacity: 0.5; }
+
+    .brand-header {
+      display: flex; align-items: center; gap: 15px; padding-bottom: 20px;
+      border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+    }
+    .brand-icon {
+      width: 50px; height: 50px; background: linear-gradient(135deg, #0ea5e9, #8b5cf6);
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; color: #fff; box-shadow: 0 5px 20px rgba(14, 165, 233, 0.4);
+    }
+    .brand-title {
+      font-size: 1.4rem; font-weight: 900; margin: 0;
+      background: linear-gradient(to right, var(--primary), #8b5cf6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+    .brand-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; font-weight: 600;}
+
+    .stats-container { display: flex; gap: 12px; }
+    .stat-card {
+      flex: 1; background: var(--card-bg); border: 1px solid var(--panel-border);
+      border-radius: 14px; padding: 18px 10px; text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s;
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: var(--primary);}
+    .stat-value { font-size: 1.8rem; font-weight: 900; color: var(--primary-hover); line-height: 1;}
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; font-weight: 700; }
+
+    .control-group { display: flex; flex-direction: column; gap: 12px; }
+    .control-title {
+      font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;
+      font-weight: 800; display: flex; align-items: center; gap: 8px;
+    }
+    .control-title i { color: var(--primary); }
+
+    .search-box { position: relative; width: 100%; }
+    .search-box input {
+      width: 100%; background: var(--search-bg); border: 1px solid var(--panel-border);
+      border-radius: 12px; padding: 14px 14px 14px 45px; color: var(--text-main); font-family: inherit; outline: none;
+      transition: 0.3s; font-size: 0.95rem; font-weight: 600; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+    }
+    .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.3), inset 0 2px 5px rgba(0,0,0,0.05); }
+    .search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    
+    .modes-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .mode-btn {
+        background: var(--btn-bg); border: 1px solid var(--panel-border);
+        color: var(--text-muted); padding: 14px; border-radius: 12px; cursor: pointer;
+        text-align: center; font-family: inherit; font-size: 0.85rem; font-weight: 800;
+        display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.3s;
+    }
+    .mode-btn i { font-size: 1.4rem; transition: 0.3s; }
+    .mode-btn:hover { background: var(--card-bg); color: var(--text-main); transform: translateY(-2px); border-color: var(--primary);}
+    .mode-btn:hover i { transform: scale(1.15); color: var(--primary-hover); }
+    .mode-btn.active {
+        background: rgba(14, 165, 233, 0.15); border-color: var(--primary);
+        color: var(--text-main); box-shadow: inset 0 0 15px rgba(14, 165, 233, 0.1), 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .mode-btn.active i { color: var(--primary); }
+
+    .action-btn {
+      width: 100%; background: var(--card-bg); border: 1px solid var(--panel-border);
+      color: var(--text-main); padding: 12px; border-radius: 12px; cursor: pointer; font-family: inherit;
+      font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s;
+    }
+    .action-btn:hover { background: var(--panel-border); transform: translateY(-2px); }
+    .btn-gradient { background: linear-gradient(135deg, var(--primary), #6366f1); border: none; color: white;}
+    .btn-gradient:hover { background: linear-gradient(135deg, var(--primary-hover), #8b5cf6); box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4); color: white;}
+
+    .main-area { flex: 1; position: relative; }
+    #chart { width: 100%; height: 100%; }
+    
+    .toolbar-top { position: absolute; top: 24px; left: 24px; display: flex; gap: 12px; z-index: 10; }
+    .icon-btn {
+        background: var(--icon-bg); backdrop-filter: blur(10px);
+        border: 1px solid var(--panel-border); color: var(--text-main);
+        width: 48px; height: 48px; border-radius: 50%; display: flex;
+        align-items: center; justify-content: center; cursor: pointer;
+        transition: 0.3s; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .icon-btn:hover { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.1); box-shadow: 0 5px 20px rgba(14, 165, 233, 0.4);}
+    
+    .view-indicator {
+        position: absolute; bottom: 24px; left: 24px; background: var(--indicator-bg);
+        border: 1px solid var(--panel-border); padding: 10px 20px; border-radius: 30px;
+        backdrop-filter: blur(10px); color: var(--text-main); font-size: 0.85rem; font-weight: 700;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background 0.5s, color 0.5s;
+    }
+    
+    .ripple-effect {
+        position: absolute; border-radius: 50%; border: 3px solid var(--primary-hover);
+        animation: rippleAnim 0.7s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; pointer-events: none; z-index: 50;
+    }
+    @keyframes rippleAnim { 0% { width: 0; height: 0; opacity: 1; margin-left: 0; margin-top: 0; } 100% { width: 80px; height: 80px; opacity: 0; margin-left: -40px; margin-top: -40px; } }
+  </style>
+</head>
+<body class="light-mode"> <!-- Made Light Mode default for testing the fixes -->
+  <aside class="sidebar">
+    <div class="brand-header">
+      <div class="brand-icon"><i class="fa-solid fa-project-diagram"></i></div>
+      <div>
+          <h2 class="brand-title">منظومة الوكالة</h2>
+          <div class="brand-subtitle">تحكم كامل، مسافات انسيابية</div>
+      </div>
+    </div>
+    
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-value" id="statNodes">0</div>
+        <div class="stat-label">المتفرعات والمهام</div>
+      </div>
+      <div class="stat-card" style="flex: 0.8;">
+        <div class="stat-value" id="statCategories" style="color: #8b5cf6;">0</div>
+        <div class="stat-label">المراحل الرئيسية</div>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <span class="control-title"><i class="fa-solid fa-shapes"></i> أشكال المخططات</span>
+      <div class="modes-grid">
+          <button class="mode-btn" id="btn-radial" onclick="changeLayout('radial')">
+              <i class="fa-solid fa-bullseye"></i> مركزي ديناميكي
+          </button>
+          <button class="mode-btn active" id="btn-horizontal" onclick="changeLayout('horizontal')">
+              <i class="fa-solid fa-list-tree" style="transform: rotate(180deg) scaleY(-1);"></i> شجري انسيابي
+          </button>
+          <button class="mode-btn" id="btn-vertical" onclick="changeLayout('vertical')">
+              <i class="fa-solid fa-sitemap"></i> هيكل تنظيمي
+          </button>
+          <button class="mode-btn" id="btn-sunburst" onclick="changeLayout('sunburst')">
+              <i class="fa-solid fa-certificate"></i> شمسي (طبقات)
+          </button>
+          <button class="mode-btn" id="btn-treemap" style="grid-column: span 2;" onclick="changeLayout('treemap')">
+              <i class="fa-solid fa-table-cells-large"></i> الخوازنية الكتلية (Treemap)
+          </button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <span class="control-title"><i class="fa-solid fa-search"></i> كشاف البيانات</span>
+      <div class="search-box">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" id="searchInput" placeholder="ابحث لفرز المهام والأقسام..." onkeyup="searchNodes()">
+      </div>
+    </div>
+
+    <div class="control-group" id="treeControls">
+      <span class="control-title"><i class="fa-solid fa-code-branch"></i> التحكم في تفصيل الفروع</span>
+      <div style="display: flex; gap: 12px;">
+          <button class="action-btn" style="flex:1; font-size:13px; font-weight:800;" onclick="toggleTree(true)">توسيع كل الأغصان</button>
+          <button class="action-btn" style="flex:1; font-size:13px; font-weight:800; opacity: 0.8;" onclick="toggleTree(false)">الرجوع للأساس</button>
+      </div>
+    </div>
+
+    <div class="control-group" style="margin-top: auto;">
+        <button class="action-btn btn-gradient" onclick="downloadImage()">
+            <i class="fa-solid fa-download"></i> تصدير الرؤية الحالية
+        </button>
+    </div>
+  </aside>
+
+  <main class="main-area">
+    <div id="rippleContainer" style="position:absolute; width:100%; height:100%; pointer-events:none; z-index:40;"></div>
+    
+    <div class="toolbar-top">
+        <button class="icon-btn" onclick="resetZoom()" title="إعادة ضبط الرؤية لمنتصف الشاشة">
+            <i class="fa-solid fa-compress"></i>
+        </button>
+        <button class="icon-btn" id="themeToggleBtn" onclick="toggleThemeMode()" title="تغيير المظهر (داكن/فاتح)">
+            <i class="fa-solid fa-moon"></i>
+        </button>
+    </div>
+    <div id="chart" style="cursor: grab;"></div>
+    <div class="view-indicator" id="viewIndicator">التخطيط الحالي: شجري انسيابي</div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <script>
+    let audioCtx;
+    function playClickSound() {
+        try {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.05);
+            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+            oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.05);
+        } catch(e) {}
+    }
+
+    const markdown = `
+# الوكالة
+## 1) تأسيس الشركة
+### 1.1 الرؤية والاتجاه
+- الرؤية والرسالة والقيم
+- الوعد البرندي والتمركز السوقي
+- الميزة التنافسية للوكالة
+### 1.2 الأهداف
+- أهداف استراتيجية وتكتيكية
+- مؤشرات النجاح الرئيسية KPIs
+### 1.3 نموذج العمل
+- Business Model Canvas
+- نموذج الإيرادات والمنتجات
+- استراتيجية الدخول وتوسيع الحصة
+## 2) دراسة السوق والمنافسين
+### 2.1 تحليل السوق
+- حجم السوق وفرص النمو
+- دراسة الاتجاهات والفجوات المتاحة
+### 2.2 تحليل المنافسين
+- تقييم المنافسين المباشرين والحلفاء
+- نقاط القوة الاستثنائية ونقاط الضعف
+- تحليل التسعير وباقات الخدمات
+### 2.3 تحليل العملاء
+- الشرائح المستهدفة وتحديد الـ ICP
+- تحديد شخصيات الشراء (Personas)
+- التعامل الدقيق مع الاعتراضات
+## 3) هيكلة الخدمات
+### 3.1 الخدمات الأساسية
+- بناء وتصميم الهوية المؤسسية
+- التصميم الجرافيكي المتقدم
+- إدارة منصات التواصل الاجتماعي
+- الإنتاج المرئي والمسموع
+- تخطيط وشراء المساحات الإعلانية
+- الحلول البرمجية وتطوير المواقع
+- التحسين المتقدم لمحركات البحث
+### 3.2 التفاصيل لكل خدمة
+- تحديد المواصفات وحل المشكلات
+- بناء النطاق وتوضيح المخرجات
+- مراحل الاعتماد المتفق عليها
+## 4) التسعير والباقات
+### 4.1 منطق التسعير
+- دراسة تكاليف التشغيل المباشرة
+- التسعير القائم على مخرجات القيمة
+- تسعير عقود إدارة الحسابات
+### 4.2 المستندات التجارية
+- الكتالوجات وعروض التسعير
+- نطاق العمل الهندسي والأداء
+- سياسات صارمة للدفع وحفظ الحقوق
+## 5) التسويق للوكالة نفسها
+### 5.1 الاستراتيجية
+- تأسيس التموضع الذهني بالسوق
+- أعمدة المحتوى وجدولة النشر
+- تحسين الظهور واستقطاب الترافيك
+- إدارة وتطوير الشراكات الاستراتيجية
+### 5.2 الأصول
+- معرض أعمال تفاعلي وعميق
+- دراسات حالة موثقة بالأرقام
+- أنظمة مغناطيس العملاء
+## 6) المبيعات وإدارتها
+### 6.1 النظام
+- الفرز والتأهيل الفني للمبيعات
+- مكالمات الاستكشاف ودراسة الاحتياج
+- رحلة التفاوض والإقفال المالي
+### 6.2 المستندات والـ CRM
+- نماذج استقبال طلبات العملاء الجدد
+- أدلة الردود ومعالجة الاستفسارات
+- لوحة متابعة الصفقات بالـ CRM
+## 7) التشغيل وإدارة المشاريع
+### 7.1 النظام البرمجي
+- خرائط العمل وتوجيه المهام للفريق
+- مصفوفة RACI لتحديد المساءلة
+- التخطيط التشغيلي للسعة الاستيعابية
+### 7.2 المستندات والدورة
+- من قبول الطلب وحتى تسليم الملفات
+- قوائم جودة الاعتماد QC
+- ملخصات الجدولة المتسلسلة
+## 8) رحلة العميل
+### 8.1 المراحل والمتابعة
+- التهيئة النفسية والتقنية بعد البيع
+- آليات متابعة تنفيذ وتطوير المشروع
+### 8.2 ملفات الدعم
+- نموذج خريطة تدفق الخدمة للعميل
+- باقات الترحيب واستمارات المعلومات
+- أنظمة تقييم الرضا الدوري
+## 9) الإدارة القانونية
+- مستندات الخدمة الرئيسية
+- الـ NDAs والاتفاقيات والموردين
+- شروط التعديلات والسرية
+## 10) الإدارة المالية
+- توقعات الإيرادات وتكاليف التشغيل
+- متتبع الفواتير والذمم
+- لوحة الربحية الشاملة وتوزيعها
+## 11) ترقيات الذكاء الاصطناعي
+- روبوتات الردود ومنطق المبيعات
+- دعم التشغيل ونمذجة العمليات
+## 12) الـ SOPs
+- مكتبة القواعد التوجيهية المعيارية
+- سياسات التعاملات وإصدار التقارير
+## 13) الأرشيف والتقارير
+- الأرشفة وتخزين السجلات آلياً
+- مؤشرات التحويل والمبيعات والسرعة
+`;
+
+    let totalNodes = 0; let categories = 0;
+    
+    // Vibrant Palette for smooth branches
+    const palette = [
+        '#0284c7', '#9333ea', '#10b981', '#ea580c', '#e11d48', 
+        '#059669', '#65a30d', '#dc2626', '#7c3aed', '#2563eb', 
+        '#d97706', '#16a34a', '#0891b2', '#8b5cf6', '#db2777', '#ca8a04'
+    ];
+
+    const lines = markdown.split(/\r?\n/).filter(l => l.trim() !== '');
+    const data = { name: "القيادة\nالمركزية", children: [], itemStyle: { borderWidth: 3 } };
+    const stack = [{ level: 0, node: data }];
+
+    lines.forEach(line => {
+      let level = 0; let name = "";
+      if (line.startsWith('# ')) { return; } 
+      else if (line.startsWith('## ')) { level = 1; name = line.replace('## ', '').trim(); categories++; }
+      else if (line.startsWith('### ')) { level = 2; name = line.replace('### ', '').trim(); }
+      else if (line.startsWith('- ')) { level = 3; name = line.replace('- ', '').trim(); }
+      else { return; }
+
+      totalNodes++; name = name.replace(/^- /, "");
+      const newNode = { name: name, children: [] };
+      
+      if (level === 1) {
+          const catColor = palette[(categories - 1) % palette.length];
+          newNode.itemStyle = { borderColor: catColor, borderWidth: 3 };
+          newNode.lineStyle = { color: catColor, width: 3.5 }; // THICK smooth lines
+      } else {
+          newNode.itemStyle = { borderWidth: 2 };
+      }
+
+      while (stack.length > 0 && stack[stack.length - 1].level >= level) { stack.pop(); }
+      if (stack.length > 0) { stack[stack.length - 1].node.children.push(newNode); stack.push({ level: level, node: newNode }); }
+    });
+
+    function assignValues(node) {
+        if (!node.children || node.children.length === 0) { node.value = 1; return 1; }
+        let sum = 0; node.children.forEach(child => { sum += assignValues(child); });
+        node.value = sum; return sum;
+    }
+    assignValues(data);
+
+    document.getElementById('statNodes').innerText = totalNodes;
+    document.getElementById('statCategories').innerText = categories;
+
+    // Toggle logic flags
+    let isDarkMode = false; // Start light
+    let currentLayout = 'horizontal'; // Default to horizontal to prove smooth spacing
+    let currentDepth = 2;
+
+    const chartDom = document.getElementById('chart');
+    const myChart = echarts.init(chartDom);
+    
+    // Enable simple click-and-drag for canvas "roam" (panning feature)
+    chartDom.onmousedown = () => chartDom.style.cursor = 'grabbing';
+    chartDom.onmouseup = () => chartDom.style.cursor = 'grab';
+
+    const labelNames = { 'radial': 'المخطط الدائري المركزي', 'horizontal': 'المسار الشجري الانسيابي (أفقي)', 'vertical': 'الهيكل التنظيمي الهرمي (رأسي)', 'sunburst': 'الإشعاع الشمسي والدوائر التحليلية', 'treemap': 'المربعات الكتلية المتداخلة الديناميكية' };
+
+    function getOptionForLayout(layoutType, depth) {
+        // Core Theme Styling fixes per user request
+        const tooltipBg = isDarkMode ? 'rgba(17, 24, 39, 0.98)' : 'rgba(255, 255, 255, 0.98)';
+        const tooltipColor = isDarkMode ? '#f8fafc' : '#0f172a';
+        
+        // Main structural nodes (Depth 0, 1, 2)
+        const nodeBg = isDarkMode ? 'rgba(17, 24, 39, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+        const nodeColor = isDarkMode ? '#ffffff' : '#0f172a';
+        const borderColor = isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)';
+        
+        // Leaves specific coloring
+        // The user explicitly demanded: "Black text in light mode, White text in dark mode"
+        // And we ensure background contrasts heavily.
+        const leafTextCol = isDarkMode ? '#ffffff' : '#000000';
+        const leafBgColor = isDarkMode ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.95)';
+        
+        let baseOption = {
+            backgroundColor: 'transparent',
+            color: palette,
+            tooltip: {
+                trigger: 'item', triggerOn: 'mousemove', backgroundColor: tooltipBg,
+                borderColor: '#38bdf8', borderWidth: 2, padding: 12, borderRadius: 8,
+                textStyle: { color: tooltipColor, fontFamily: 'Tajawal', fontSize: 13, fontWeight: '700' },
+                extraCssText: isDarkMode ? 'box-shadow: 0 10px 25px rgba(0,0,0,0.8);' : 'box-shadow: 0 10px 25px rgba(0,0,0,0.2);',
+                formatter: function (info) {
+                    if(info.treePathInfo) {
+                        let path = info.treePathInfo.map(i => i.name.replace('\\n', ' '));
+                        return "<div style='text-align:right'>" + path.join('<br/><i class="fa-solid fa-arrow-down" style="color:var(--primary);font-size:12px;margin:8px 0;width:100%;text-align:center;"></i><br/>') + "</div>";
+                    } return info.name;
+                }
+            }
+        };
+
+        if (layoutType === 'sunburst') {
+            baseOption.series = [{
+                type: 'sunburst', data: [data], radius: ['5%', '95%'], sort: undefined, emphasis: { focus: 'ancestor' },
+                itemStyle: { borderRadius: 6, borderWidth: 3, borderColor: isDarkMode ? '#030712' : '#ffffff' },
+                levels: [
+                    {}, 
+                    { r0: '12%', r: '35%', itemStyle: { borderWidth: 3 }, label: { rotate: 'tangential', fontSize: 13, fontWeight: 800 } },
+                    { r0: '35%', r: '75%', label: { align: 'right', fontSize: 12, fontWeight: 700 }, itemStyle: { opacity: 0.9 } },
+                    { r0: '75%', r: '80%', label: { position: 'outside', padding: 4, silent: false, color: nodeColor, fontSize: 12, fontWeight: 800 }, itemStyle: { opacity: 0.7 } }
+                ],
+                label: { fontFamily: 'Tajawal', color: isDarkMode ? '#fff' : '#000' }
+            }]; return baseOption;
+        }
+
+        if (layoutType === 'treemap') {
+            baseOption.series = [{
+                type: 'treemap', data: [data], roam: true, nodeClick: 'zoomToNode', leafDepth: 2,
+                levels: [
+                    { itemStyle: { borderColor: isDarkMode ? '#111827' : '#e2e8f0', borderWidth: 6, gapWidth: 6 } },
+                    { colorSaturation: [0.4, 0.7], itemStyle: { borderColorSaturation: 0.8, gapWidth: 3, borderWidth: 3 } },
+                    { colorSaturation: [0.35, 0.6], itemStyle: { borderColorSaturation: 0.7, gapWidth: 2 } },
+                    { colorSaturation: [0.3, 0.5] }
+                ],
+                itemStyle: { borderColor: isDarkMode ? '#1e293b' : '#cbd5e1' },
+                label: { fontFamily: 'Tajawal', fontSize: 15, fontWeight: 900, overflow: 'truncate', color: '#fff' } 
+            }]; return baseOption;
+        }
+
+        const isRadial = layoutType === 'radial';
+        const isVertical = layoutType === 'vertical';
+        
+        baseOption.series = [{
+            type: 'tree', data: [data],
+            // MASSIVE padding increases for breathing room
+            top: isVertical ? '15%' : (isRadial ? '6%' : '8%'), 
+            bottom: isVertical ? '10%' : (isRadial ? '6%' : '8%'),
+            left: isVertical ? '8%' : (isRadial ? '6%' : '12%'), 
+            right: isVertical ? '8%' : (isRadial ? '6%' : '35%'), // Extreme right padding to fit RL horizontal layout
+            layout: isRadial ? 'radial' : 'orthogonal', orient: isVertical ? 'TB' : 'RL',
+            symbol: 'emptyCircle',
+            symbolSize: function(val, params) { return params.depth === 0 ? 36 : (params.depth === 1 ? 24 : 14); },
+            initialTreeDepth: depth, animationDurationUpdate: 800, 
+            roam: true, // VERY IMPORTANT: Allows panning/zooming canvas!
+            zoom: isRadial ? 0.75 : 0.8, // Start slightly more zoomed out
+            expandAndCollapse: true,
+            emphasis: { focus: 'ancestor', blurScope: 'coordinateSystem', lineStyle: { width: 5 } }, 
+            itemStyle: { color: isDarkMode ? '#030712' : '#ffffff', borderColor: '#0ea5e9', borderWidth: 3 },
+            // Ultra-smooth bezier lines! (curveness 0.6)
+            lineStyle: { color: 'source', width: 3, curveness: isVertical ? 0.4 : (isRadial ? 0.5 : 0.7) }, 
+            label: {
+                color: nodeColor, fontSize: 15, fontFamily: 'Tajawal', fontWeight: 900,
+                // CRUCIAL POSITION FIX: Keep nodes Top so they NEVER sit on lines!
+                position: isRadial ? undefined : (isVertical ? 'right' : 'top'), 
+                align: isRadial ? undefined : 'center',
+                verticalAlign: isRadial ? undefined : 'bottom',
+                padding: [6, 12], borderRadius: 8, backgroundColor: nodeBg,
+                borderWidth: 2, borderColor: borderColor,
+                distance: isRadial ? 15 : 12,
+                boxShadow: isDarkMode ? '0 4px 10px rgba(0,0,0,0.5)' : '0 4px 10px rgba(0,0,0,0.05)',
+                formatter: function (params) {
+                    let name = params.name;
+                    if(name.length > 25) {
+                        let words = name.split(' '); let lines = ''; let currentLine = '';
+                        for(let word of words) {
+                            // Replaced literal \\n with standard \n to ACTUALLY break lines
+                            if((currentLine + word).length > 25) { lines += currentLine.trim() + '\n'; currentLine = word + ' '; } 
+                            else { currentLine += word + ' '; }
+                        } return lines + currentLine.trim();
+                    } return name;
+                }
+            },
+            leaves: {
+              label: {
+                color: leafTextCol, // Black on light, White on dark!
+                fontSize: 14, fontWeight: 800,
+                // Make leaves neatly sit at the end
+                position: isRadial ? 'outside' : (isVertical ? 'bottom' : 'left'), 
+                align: isRadial ? (params => params.dataIndex > totalNodes/2 ? 'right':'left') : (isVertical ? 'center' : 'right'),
+                verticalAlign: isRadial ? 'middle' : (isVertical ? 'top' : 'middle'),
+                backgroundColor: leafBgColor,
+                padding: [6, 14], borderRadius: 6, distance: 15, 
+                borderWidth: 1, borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+              }
+            }
+        }];
+        
+        return baseOption;
+    }
+
+    myChart.setOption(getOptionForLayout(currentLayout, currentDepth));
+    window.addEventListener('resize', () => myChart.resize());
+
+    function triggerRipple(x, y) {
+        playClickSound();
+        const container = document.getElementById('rippleContainer');
+        const ripple = document.createElement('div');
+        ripple.className = 'ripple-effect';
+        ripple.style.left = x + 'px'; ripple.style.top = y + 'px';
+        container.appendChild(ripple);
+        setTimeout(() => container.removeChild(ripple), 700);
+    }
+    
+    myChart.on('click', function(params) {
+        if(params.event && params.event.event) {
+            triggerRipple(params.event.event.clientX, params.event.event.clientY);
+        }
+    });
+
+    window.changeLayout = function(type) {
+        playClickSound(); currentLayout = type;
+        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('btn-' + type).classList.add('active');
+        
+        const isTree = ['radial', 'horizontal', 'vertical'].includes(type);
+        document.getElementById('treeControls').style.display = isTree ? 'flex' : 'none';
+        document.getElementById('viewIndicator').innerText = "التخطيط الحالي: " + labelNames[type];
+
+        myChart.clear(); myChart.setOption(getOptionForLayout(type, currentDepth));
+    };
+
+    window.toggleTree = function(expandAll) {
+        playClickSound();
+        currentDepth = expandAll ? 4 : 2; 
+        const isTree = ['radial', 'horizontal', 'vertical'].includes(currentLayout);
+        if (isTree) myChart.setOption(getOptionForLayout(currentLayout, currentDepth));
+    };
+
+    window.resetZoom = function() {
+        playClickSound();
+        myChart.dispatchAction({ type: 'restore' });
+        myChart.setOption(getOptionForLayout(currentLayout, currentDepth));
+    };
+    
+    // Toggle Light and Dark Themes dynamically
+    window.toggleThemeMode = function() {
+        playClickSound();
+        isDarkMode = !isDarkMode;
+        
+        if(isDarkMode) {
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.body.classList.add('light-mode');
+        }
+        
+        const btnIcon = document.querySelector('#themeToggleBtn i');
+        btnIcon.className = isDarkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        
+        // Refresh chart rendering to pick up light/dark mode variables natively configured
+        myChart.setOption(getOptionForLayout(currentLayout, currentDepth));
+    };
+
+    window.searchNodes = function() {
+        const query = document.getElementById('searchInput').value.trim();
+        const isTree = ['radial', 'horizontal', 'vertical'].includes(currentLayout);
+        
+        if(!query) {
+            if(isTree) {
+                // Reset labels
+                myChart.setOption(getOptionForLayout(currentLayout, currentDepth));
+            } return;
+        }
+
+        if(isTree && currentDepth < 4) { currentDepth = 4; myChart.setOption(getOptionForLayout(currentLayout, currentDepth)); }
+        
+        myChart.setOption({
+            series: [{
+                label: {
+                    formatter: function(params) {
+                        let name = params.name;
+                        if(name.length > 25) {
+                            let words = name.split(' '); let lines = ''; let currentLine = '';
+                            for(let word of words) {
+                                if((currentLine + word).length > 25) { lines += currentLine.trim() + '\n'; currentLine = word + ' '; } 
+                                else { currentLine += word + ' '; }
+                            }
+                            name = lines + currentLine.trim();
+                        }
+                        if(name.indexOf(query) !== -1) return '{highlight|' + name + '}';
+                        return name;
+                    },
+                    rich: { highlight: { color: isDarkMode ? '#ffffff' : '#000000', backgroundColor: '#ea580c', padding: [6, 12], borderRadius: 6, fontWeight: 900, borderColor: '#ea580c', borderWidth: 2 } }
+                }
+            }]
+        });
+    };
+
+    window.downloadImage = function() {
+        playClickSound();
+        const bg = isDarkMode ? '#030712' : '#f8fafc';
+        const url = myChart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: bg });
+        const a = document.createElement('a'); a.href = url; a.download = 'Agency_Visual_System_' + currentLayout + '.png'; 
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    };
+  </script>
+</body>
+</html>
